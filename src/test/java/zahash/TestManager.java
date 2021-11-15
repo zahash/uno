@@ -1,28 +1,19 @@
 package zahash;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import zahash.exceptions.NoMatchDiscardException;
-import zahash.manager.GameManager;
 import zahash.manager.Manager;
-import zahash.fake.CardDeckInitializerManager;
+import zahash.fake.FakeCardDeckInitializer;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TestManager {
-    private static Manager underTest;
-
-    @BeforeAll
-    static void setup() {
-        underTest = new GameManager();
-    }
-
     @Test
     void canInitializeGameWith108Cards() {
         Game game = new Game();
-        underTest.initialize108Deck(game);
+        Manager.initialize108Deck(game);
         Assertions.assertEquals(game.deck.size(), 108);
     }
 
@@ -31,12 +22,9 @@ public class TestManager {
         Game game = new Game();
 
         Card toBeDiscarded = new Card(Card.Color.RED, Card.Symbol.NOSYMBOL, Card.Number.NINE);
-        Manager fake = new CardDeckInitializerManager(Collections.singletonList(
-                toBeDiscarded
-        ));
-        fake.initialize108Deck(game);
+        FakeCardDeckInitializer.initializeFakeDeck(game, Collections.singletonList(toBeDiscarded));
 
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
         Assertions.assertEquals(game.discarded.size(), 1);
         Assertions.assertEquals(game.discarded.peek(), toBeDiscarded);
     }
@@ -45,13 +33,12 @@ public class TestManager {
     void canInitializeDiscardPileWhenFirstCardIsWild() {
         Game game = new Game();
         Card toBeDiscarded = new Card(Card.Color.RED, Card.Symbol.NOSYMBOL, Card.Number.NINE);
-        Manager fake = new CardDeckInitializerManager(Arrays.asList(
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
                 toBeDiscarded,
                 new Card(Card.Color.NOCOLOR, Card.Symbol.WILD, Card.Number.NONUMBER)
         ));
-        fake.initialize108Deck(game);
 
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
         Assertions.assertEquals(game.discarded.size(), 2);
         Assertions.assertEquals(game.discarded.peek(), toBeDiscarded);
     }
@@ -60,14 +47,13 @@ public class TestManager {
     void canInitializeDiscardPileWhenFirstTwoCardsAreWild() {
         Game game = new Game();
         Card toBeDiscarded = new Card(Card.Color.RED, Card.Symbol.NOSYMBOL, Card.Number.NINE);
-        Manager fake = new CardDeckInitializerManager(Arrays.asList(
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
                 toBeDiscarded,
                 new Card(Card.Color.NOCOLOR, Card.Symbol.WILD_DRAW_FOUR, Card.Number.NONUMBER),
                 new Card(Card.Color.NOCOLOR, Card.Symbol.WILD, Card.Number.NONUMBER)
         ));
-        fake.initialize108Deck(game);
 
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
         Assertions.assertEquals(game.discarded.size(), 3);
         Assertions.assertEquals(game.discarded.peek(), toBeDiscarded);
     }
@@ -76,15 +62,14 @@ public class TestManager {
     void canInitializeDiscardPileWhenMiddleTwoCardsAreWild() {
         Game game = new Game();
         Card toBeDiscarded = new Card(Card.Color.RED, Card.Symbol.NOSYMBOL, Card.Number.NINE);
-        Manager fake = new CardDeckInitializerManager(Arrays.asList(
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
                 new Card(Card.Color.NOCOLOR, Card.Symbol.WILD, Card.Number.NONUMBER),
                 toBeDiscarded,
                 new Card(Card.Color.NOCOLOR, Card.Symbol.WILD_DRAW_FOUR, Card.Number.NONUMBER)
 
         ));
-        fake.initialize108Deck(game);
 
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
         Assertions.assertEquals(game.discarded.size(), 2);
         Assertions.assertEquals(game.discarded.peek(), toBeDiscarded);
     }
@@ -104,7 +89,7 @@ public class TestManager {
         }
 
         Game game = new Game();
-        underTest.initialize108Deck(game);
+        Manager.initialize108Deck(game);
 
         Counter<Card> counter = new Counter<>();
         for (Card card : game.deck)
@@ -138,11 +123,11 @@ public class TestManager {
     void afterInitializing108Deck_playerCanDrawOneCard() {
         Game game = new Game();
         Player player = new Player();
-        underTest.initialize108Deck(game);
+        Manager.initialize108Deck(game);
 
         Assertions.assertEquals(player.cards.size(), 0);
         Assertions.assertEquals(game.deck.size(), 108);
-        underTest.draw(player, game);
+        Manager.draw(player, game);
         Assertions.assertEquals(game.deck.size(), 108 - 1);
         Assertions.assertEquals(player.cards.size(), 1);
     }
@@ -151,14 +136,14 @@ public class TestManager {
     void afterInitializing108Deck_playerCanDrawMultipleCards() {
         Game game = new Game();
         Player player = new Player();
-        underTest.initialize108Deck(game);
+        Manager.initialize108Deck(game);
 
         Assertions.assertEquals(player.cards.size(), 0);
         Assertions.assertEquals(game.deck.size(), 108);
 
         int n = 10;
         for (int i = 0; i < n; i++)
-            underTest.draw(player, game);
+            Manager.draw(player, game);
 
         Assertions.assertEquals(game.deck.size(), 108 - n);
         Assertions.assertEquals(player.cards.size(), n);
@@ -167,10 +152,10 @@ public class TestManager {
     @Test
     void afterInitializing108Deck_cardsMustHaveBeenShuffled() {
         Game game1 = new Game();
-        underTest.initialize108Deck(game1);
+        Manager.initialize108Deck(game1);
 
         Game game2 = new Game();
-        underTest.initialize108Deck(game2);
+        Manager.initialize108Deck(game2);
 
         Iterator<Card> it1 = game1.deck.iterator();
         Iterator<Card> it2 = game2.deck.iterator();
@@ -186,33 +171,31 @@ public class TestManager {
     @Test
     void playerCannotDiscardCardIfNothingMatchesTopOfDiscardPile() {
         Game game = new Game();
-        Manager fake = new CardDeckInitializerManager(Arrays.asList(
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
                 new Card(Card.Color.BLUE, Card.Symbol.NOSYMBOL, Card.Number.THREE),
                 new Card(Card.Color.RED, Card.Symbol.NOSYMBOL, Card.Number.FIVE)
         ));
-        fake.initialize108Deck(game);
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
 
         Player player = new Player();
-        underTest.draw(player, game);
+        Manager.draw(player, game);
 
-        Assertions.assertThrows(NoMatchDiscardException.class, () -> underTest.discard(player, game, 0));
+        Assertions.assertThrows(NoMatchDiscardException.class, () -> Manager.discard(player, game, 0));
     }
 
     @Test
     void playerCanDiscardCardIfCardMatchesTopOfDiscardPile() {
         Game game = new Game();
-        Manager fake = new CardDeckInitializerManager(Arrays.asList(
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
                 new Card(Card.Color.BLUE, Card.Symbol.NOSYMBOL, Card.Number.THREE),
                 new Card(Card.Color.BLUE, Card.Symbol.REVERSE, Card.Number.NONUMBER)
         ));
-        fake.initialize108Deck(game);
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
 
         Player player = new Player();
-        underTest.draw(player, game);
+        Manager.draw(player, game);
 
-        underTest.discard(player, game, 0);
+        Manager.discard(player, game, 0);
 
         Assertions.assertEquals(game.discarded.size(), 2);
         Assertions.assertEquals(player.cards.size(), 0);
@@ -221,21 +204,20 @@ public class TestManager {
     @Test
     void checkDiscardableCards() {
         Game game = new Game();
-        Manager fake = new CardDeckInitializerManager(Arrays.asList(
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
                 new Card(Card.Color.RED, Card.Symbol.NOSYMBOL, Card.Number.TWO),        // 2
                 new Card(Card.Color.GREEN, Card.Symbol.SKIP, Card.Number.NONUMBER),     // 1
                 new Card(Card.Color.BLUE, Card.Symbol.REVERSE, Card.Number.NONUMBER),   // 0
                 new Card(Card.Color.BLUE, Card.Symbol.NOSYMBOL, Card.Number.TWO)        // discarded
         ));
-        fake.initialize108Deck(game);
-        underTest.initializeDiscardPile(game);
+        Manager.initializeDiscardPile(game);
 
         Player player = new Player();
-        underTest.draw(player, game);
-        underTest.draw(player, game);
-        underTest.draw(player, game);
+        Manager.draw(player, game);
+        Manager.draw(player, game);
+        Manager.draw(player, game);
 
-        List<Integer> discardableIndices = underTest.discardables(player, game);
+        List<Integer> discardableIndices = Manager.discardables(player, game);
         Assertions.assertArrayEquals(discardableIndices.toArray(), Arrays.asList(0, 2).toArray());
     }
 
@@ -248,7 +230,7 @@ public class TestManager {
                 new Player()
         );
 
-        int nextPlayerIdx = underTest.nextPlayer(players, game, 0);
+        int nextPlayerIdx = Manager.nextPlayer(players, game, 0);
         Assertions.assertEquals(nextPlayerIdx, 1);
     }
 
@@ -262,7 +244,7 @@ public class TestManager {
                 new Player()
         );
 
-        int nextPlayerIdx = underTest.nextPlayer(players, game, 2);
+        int nextPlayerIdx = Manager.nextPlayer(players, game, 2);
         Assertions.assertEquals(nextPlayerIdx, 0);
     }
 }

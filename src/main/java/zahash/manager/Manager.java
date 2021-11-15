@@ -1,20 +1,52 @@
 package zahash.manager;
 
+import zahash.Card;
 import zahash.Game;
 import zahash.Player;
+import zahash.exceptions.NoMatchDiscardException;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public interface Manager {
-    void initialize108Deck(Game game);
+public class Manager {
+    public static void initialize108Deck(Game game) {
+        List<Card> cards = Card.all();
+        Collections.shuffle(cards);
 
-    void draw(Player player, Game game);
+        for (Card card : cards)
+            game.deck.push(card);
+    }
 
-    void discard(Player player, Game game, int cardIdx);
+    public static void draw(Player player, Game game) {
+        player.cards.add(game.deck.pop());
+    }
 
-    void initializeDiscardPile(Game game);
+    public static void discard(Player player, Game game, int cardIdx) {
+        Card cardToBeDiscarded = player.cards.get(cardIdx);
+        if (!Card.match(cardToBeDiscarded, game.discarded.peek()))
+            throw new NoMatchDiscardException();
+        player.cards.remove(cardIdx);
+        game.discarded.push(cardToBeDiscarded);
+    }
 
-    List<Integer> discardables(Player player, Game game);
+    public static void initializeDiscardPile(Game game) {
+        Card card;
+        do {
+            card = game.deck.pop();
+            game.discarded.push(card);
+        } while (card.symbol.equals(Card.Symbol.WILD) || card.symbol.equals(Card.Symbol.WILD_DRAW_FOUR));
+    }
 
-    Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx);
+    public static List<Integer> discardables(Player player, Game game) {
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < player.cards.size(); i++)
+            if (Card.match(player.cards.get(i), game.discarded.peek()))
+                indices.add(i);
+        return indices;
+    }
+
+    public static Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx) {
+        return (currentPlayerIdx + 1) % players.size();
+    }
 }
