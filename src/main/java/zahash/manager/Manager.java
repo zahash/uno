@@ -15,4 +15,6 @@ public interface Manager {
     void initializeDiscardPile(Game game);
 
     List<Integer> discardables(Player player, Game game);
+
+    Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx);
 }

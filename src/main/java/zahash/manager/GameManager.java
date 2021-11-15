@@ -50,4 +50,9 @@ public class GameManager implements Manager {
                 indices.add(i);
         return indices;
     }
+
+    @Override
+    public Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx) {
+        return (currentPlayerIdx + 1) % players.size();
+    }
 }

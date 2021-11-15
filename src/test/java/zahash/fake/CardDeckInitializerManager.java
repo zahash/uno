@@ -39,4 +39,9 @@ public class CardDeckInitializerManager implements Manager {
     public List<Integer> discardables(Player player, Game game) {
         return null;
     }
+
+    @Override
+    public Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx) {
+        return null;
+    }
 }

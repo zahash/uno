@@ -238,4 +238,31 @@ public class TestManager {
         List<Integer> discardableIndices = underTest.discardables(player, game);
         Assertions.assertArrayEquals(discardableIndices.toArray(), Arrays.asList(0, 2).toArray());
     }
+
+    @Test
+    void checkNextPlayer_shouldBeClockwiseByDefault() {
+        Game game = new Game();
+
+        List<Player> players = Arrays.asList(
+                new Player(),
+                new Player()
+        );
+
+        int nextPlayerIdx = underTest.nextPlayer(players, game, 0);
+        Assertions.assertEquals(nextPlayerIdx, 1);
+    }
+
+    @Test
+    void checkCyclicNextPlayer_shouldBeClockwiseByDefault() {
+        Game game = new Game();
+
+        List<Player> players = Arrays.asList(
+                new Player(),
+                new Player(),
+                new Player()
+        );
+
+        int nextPlayerIdx = underTest.nextPlayer(players, game, 2);
+        Assertions.assertEquals(nextPlayerIdx, 0);
+    }
 }
