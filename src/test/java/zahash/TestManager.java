@@ -264,4 +264,29 @@ public class TestManager {
         Manager.discard(player, game, 0);
         Assertions.assertEquals(Game.Direction.ANTICLOCKWISE, game.direction);
     }
+
+    @Test
+    void whenReverseCardIsDiscarded_checkNextPlayer() {
+        Game game = new Game();
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
+                new Card(Card.Color.BLUE, Card.Symbol.REVERSE, Card.Number.NONUMBER),   // draw
+                new Card(Card.Color.BLUE, Card.Symbol.NOSYMBOL, Card.Number.TWO)        // initial discarded
+        ));
+        Manager.initializeDiscardPile(game);
+
+        List<Player> players = Arrays.asList(
+                new Player(),
+                new Player(),
+                new Player()
+        );
+
+        int currentPlayerIdx = 0;
+
+        Manager.draw(players.get(currentPlayerIdx), game);
+        Manager.discard(players.get(currentPlayerIdx), game, 0);
+
+        int nextPlayerIdx = Manager.nextPlayer(players, game, currentPlayerIdx);
+        Assertions.assertEquals(2, nextPlayerIdx);
+    }
+
 }

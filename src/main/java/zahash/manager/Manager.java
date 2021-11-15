@@ -51,6 +51,8 @@ public class Manager {
     }
 
     public static Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx) {
-        return (currentPlayerIdx + 1) % players.size();
+        if (game.direction.equals(Game.Direction.CLOCKWISE))
+            return (currentPlayerIdx + 1) % players.size();
+        return (currentPlayerIdx - 1) % players.size() < 0 ? currentPlayerIdx - 1 + players.size() : currentPlayerIdx - 1;
     }
 }
