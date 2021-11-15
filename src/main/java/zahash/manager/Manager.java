@@ -52,7 +52,7 @@ public class Manager {
 
     public static Integer nextPlayer(List<Player> players, Game game, int currentPlayerIdx) {
         if (game.direction.equals(Game.Direction.CLOCKWISE))
-            return (currentPlayerIdx + 1) % players.size();
-        return (currentPlayerIdx - 1) % players.size() < 0 ? currentPlayerIdx - 1 + players.size() : currentPlayerIdx - 1;
+            return Math.floorMod(currentPlayerIdx + 1, players.size());
+        return Math.floorMod(currentPlayerIdx - 1, players.size());
     }
 }
