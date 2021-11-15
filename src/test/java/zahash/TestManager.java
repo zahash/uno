@@ -247,4 +247,21 @@ public class TestManager {
         int nextPlayerIdx = Manager.nextPlayer(players, game, 2);
         Assertions.assertEquals(nextPlayerIdx, 0);
     }
+
+    @Test
+    void whenReverseCardIsDiscarded_directionMustChange() {
+        Game game = new Game();
+        FakeCardDeckInitializer.initializeFakeDeck(game, Arrays.asList(
+                new Card(Card.Color.BLUE, Card.Symbol.REVERSE, Card.Number.NONUMBER),   // draw
+                new Card(Card.Color.BLUE, Card.Symbol.NOSYMBOL, Card.Number.TWO)        // initial discarded
+        ));
+        Manager.initializeDiscardPile(game);
+
+        Player player = new Player();
+        Manager.draw(player, game);
+
+        Assertions.assertEquals(Game.Direction.CLOCKWISE, game.direction);
+        Manager.discard(player, game, 0);
+        Assertions.assertEquals(Game.Direction.ANTICLOCKWISE, game.direction);
+    }
 }

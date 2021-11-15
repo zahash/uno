@@ -3,7 +3,7 @@ package zahash;
 import java.util.Stack;
 
 public class Game {
-    enum Direction {
+    public enum Direction {
         CLOCKWISE, ANTICLOCKWISE;
 
         public Direction opposite() {

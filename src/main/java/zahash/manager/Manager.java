@@ -26,6 +26,10 @@ public class Manager {
         Card cardToBeDiscarded = player.cards.get(cardIdx);
         if (!Card.match(cardToBeDiscarded, game.discarded.peek()))
             throw new NoMatchDiscardException();
+
+        if (cardToBeDiscarded.symbol.equals(Card.Symbol.REVERSE))
+            game.direction = game.direction.opposite();
+
         player.cards.remove(cardIdx);
         game.discarded.push(cardToBeDiscarded);
     }
